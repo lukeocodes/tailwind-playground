@@ -13,6 +13,7 @@ A browser-based [Tailwind CSS v4](https://tailwindcss.com/) playground with a li
 - **Draggable split pane** — resize the editor and preview panels
 - **Canned templates** — Design System, Gradient Hero, Split Hero, Dashboard Cards, Pricing Table
 - **Comprehensive theme editor** — customize colors, border radius, font sizes, shadows, spacing, and more via CSS
+- **WebMCP support** — AI agents can read/write the theme CSS and sandbox HTML via [`navigator.modelContext`](https://webmcp.link/)
 
 ## Getting Started
 
@@ -55,6 +56,21 @@ Write HTML using Tailwind utility classes. Use the semantic tokens from your the
 </div>
 ```
 
+## WebMCP
+
+The playground exposes tools via the [WebMCP](https://webmcp.link/) standard, allowing AI agents to interact with the site programmatically. Available tools:
+
+| Tool | Description |
+|------|-------------|
+| `get_theme_css` | Read the current theme CSS |
+| `set_theme_css` | Replace the theme CSS and refresh the preview |
+| `get_sandbox_html` | Read the current sandbox HTML |
+| `set_sandbox_html` | Replace the sandbox HTML and refresh the preview |
+| `list_templates` | List available canned templates |
+| `select_template` | Load a template by name |
+
+Write tools automatically focus the browser window so the user can see changes. Requires [Chrome Canary 146+](https://www.google.com/chrome/canary/) with the WebMCP flag enabled, or any browser with the [`@mcp-b/global`](https://www.npmjs.com/package/@mcp-b/global) polyfill (included).
+
 ## Tech Stack
 
 | Dependency | Source | Purpose |
@@ -62,6 +78,7 @@ Write HTML using Tailwind utility classes. Use the semantic tokens from your the
 | [Tailwind CSS v4](https://tailwindcss.com/) | CDN | JIT compilation in the browser |
 | [Monaco Editor](https://microsoft.github.io/monaco-editor/) | CDN | Code editing |
 | [Inter](https://rsms.me/inter/) + [JetBrains Mono](https://www.jetbrains.com/lp/mono/) | Google Fonts | Typography |
+| [`@mcp-b/global`](https://www.npmjs.com/package/@mcp-b/global) | CDN | WebMCP polyfill |
 
 Zero npm dependencies. Zero build step. ~50KB of application code.
 
