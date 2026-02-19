@@ -1,0 +1,14 @@
+{
+  "name": "tailwind-playground",
+  "version": "0.0.1",
+  "description": "A browser-based Tailwind CSS v4 playground with live preview and Monaco editor",
+  "private": true,
+  "scripts": {
+    "dev": "npx serve . -p 5177"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/lukeocodes/tailwind-playground.git"
+  },
+  "license": "MIT"
+}

@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tailwind v4 Playground</title>
+
+  <!-- Monaco Editor loader -->
+  <script src="https://cdn.jsdelivr.net/npm/monaco-editor@0.52.2/min/vs/loader.js"></script>
+
+  <style>
+    /* --- Theme Variables --- */
+    :root,
+    [data-theme="light"] {
+      --pg-bg: #ffffff;
+      --pg-bg-alt: #f8fafc;
+      --pg-bg-sunken: #f1f5f9;
+      --pg-fg: #0f172a;
+      --pg-fg-muted: #64748b;
+      --pg-border: #e2e8f0;
+      --pg-accent: #818cf8;
+      --pg-accent-hover: #6366f1;
+      --pg-tab-active-bg: #f1f5f9;
+      --pg-resizer: #e2e8f0;
+      --pg-preview-bg: #f1f5f9;
+      --pg-preview-frame-bg: #ffffff;
+      --pg-select-bg: #ffffff;
+      --pg-select-border: #e2e8f0;
+      --pg-select-fg: #334155;
+      --pg-vp-hover-bg: #e2e8f0;
+      --pg-vp-active-bg: #e2e8f0;
+      --pg-vp-fg: #94a3b8;
+      --pg-vp-active-fg: #334155;
+      --pg-toggle-bg: transparent;
+      --pg-toggle-hover: #f1f5f9;
+    }
+
+    [data-theme="dark"] {
+      --pg-bg: #0f172a;
+      --pg-bg-alt: #0f172a;
+      --pg-bg-sunken: #020617;
+      --pg-fg: #e2e8f0;
+      --pg-fg-muted: #64748b;
+      --pg-border: #1e293b;
+      --pg-accent: #818cf8;
+      --pg-accent-hover: #a5b4fc;
+      --pg-tab-active-bg: #1e293b;
+      --pg-resizer: #1e293b;
+      --pg-preview-bg: #1e293b;
+      --pg-preview-frame-bg: #0f172a;
+      --pg-select-bg: #1e293b;
+      --pg-select-border: #334155;
+      --pg-select-fg: #e2e8f0;
+      --pg-vp-hover-bg: #334155;
+      --pg-vp-active-bg: #334155;
+      --pg-vp-fg: #64748b;
+      --pg-vp-active-fg: #e2e8f0;
+      --pg-toggle-bg: transparent;
+      --pg-toggle-hover: #1e293b;
+    }
+
+    /* --- Reset & Base --- */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body {
+      height: 100%;
+      overflow: hidden;
+      font-family: "Inter", system-ui, -apple-system, sans-serif;
+      background: var(--pg-bg);
+      color: var(--pg-fg);
+      transition: background-color 0.2s, color 0.2s;
+    }
+
+    /* --- Layout --- */
+    #app {
+      display: flex;
+      height: 100vh;
+      width: 100vw;
+    }
+
+    /* --- Editor Panel --- */
+    #editor-panel {
+      width: 50%;
+      min-width: 280px;
+      display: flex;
+      flex-direction: column;
+      background: var(--pg-bg);
+      border-right: 1px solid var(--pg-border);
+      transition: background-color 0.2s, border-color 0.2s;
+    }
+
+    .toolbar {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 0 12px;
+      height: 44px;
+      background: var(--pg-bg);
+      border-bottom: 1px solid var(--pg-border);
+      flex-shrink: 0;
+      transition: background-color 0.2s, border-color 0.2s;
+    }
+
+    .toolbar-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--pg-fg-muted);
+      letter-spacing: 0.02em;
+      margin-right: auto;
+      white-space: nowrap;
+    }
+    .toolbar-title span {
+      background: linear-gradient(135deg, #818cf8, #a78bfa);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    /* --- Theme Toggle --- */
+    #theme-toggle {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      border: none;
+      background: var(--pg-toggle-bg);
+      color: var(--pg-fg-muted);
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background-color 0.15s, color 0.15s;
+    }
+    #theme-toggle:hover {
+      background: var(--pg-toggle-hover);
+      color: var(--pg-accent);
+    }
+
+    /* --- Tabs --- */
+    .tab-bar {
+      display: flex;
+      align-items: center;
+      padding: 0 12px;
+      height: 36px;
+      background: var(--pg-bg);
+      border-bottom: 1px solid var(--pg-border);
+      gap: 2px;
+      flex-shrink: 0;
+      transition: background-color 0.2s, border-color 0.2s;
+    }
+    .tab {
+      padding: 6px 14px;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--pg-fg-muted);
+      cursor: pointer;
+      border: none;
+      background: none;
+      border-radius: 6px 6px 0 0;
+      transition: color 0.15s, background 0.15s;
+      position: relative;
+    }
+    .tab:hover { color: var(--pg-fg); }
+    .tab-active {
+      color: var(--pg-fg);
+      background: var(--pg-tab-active-bg);
+    }
+    .tab-active::after {
+      content: "";
+      position: absolute;
+      bottom: -1px;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: var(--pg-accent);
+      border-radius: 2px 2px 0 0;
+    }
+
+    /* --- Editor Containers --- */
+    .editor-wrap {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+    }
+    #editor-container, #sandbox-editor-container {
+      position: absolute;
+      inset: 0;
+    }
+    .hidden { display: none !important; }
+
+    /* --- Resizer --- */
+    #resizer {
+      width: 5px;
+      cursor: col-resize;
+      background: var(--pg-resizer);
+      flex-shrink: 0;
+      transition: background-color 0.15s;
+    }
+    #resizer:hover, #resizer:active { background: var(--pg-accent); }
+
+    /* --- Preview Panel --- */
+    #preview-panel {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      background: var(--pg-preview-bg);
+      min-width: 200px;
+      transition: background-color 0.2s;
+    }
+    .preview-toolbar {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 0 12px;
+      height: 44px;
+      background: var(--pg-bg-alt);
+      border-bottom: 1px solid var(--pg-border);
+      flex-shrink: 0;
+      transition: background-color 0.2s, border-color 0.2s;
+    }
+    .preview-toolbar label {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--pg-fg-muted);
+      margin-right: 4px;
+    }
+    .preview-toolbar select {
+      font-size: 12px;
+      padding: 4px 8px;
+      border-radius: 6px;
+      border: 1px solid var(--pg-select-border);
+      background: var(--pg-select-bg);
+      color: var(--pg-select-fg);
+      cursor: pointer;
+      outline: none;
+      transition: background-color 0.2s, border-color 0.2s, color 0.2s;
+    }
+    .preview-toolbar select:focus {
+      border-color: var(--pg-accent);
+      box-shadow: 0 0 0 2px rgba(129,140,248,0.2);
+    }
+    .vp-group {
+      display: flex;
+      gap: 2px;
+      margin-left: auto;
+    }
+    .vp-btn {
+      border: none;
+      background: none;
+      cursor: pointer;
+      color: var(--pg-vp-fg);
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      transition: color 0.15s, background 0.15s;
+    }
+    .vp-btn:hover { color: var(--pg-vp-active-fg); background: var(--pg-vp-hover-bg); }
+    .vp-active { color: var(--pg-vp-active-fg); background: var(--pg-vp-active-bg); font-weight: 600; }
+
+    /* --- Preview Frame --- */
+    #preview-wrapper {
+      flex: 1;
+      overflow: auto;
+      display: flex;
+      justify-content: center;
+      background: var(--pg-preview-bg);
+      transition: background-color 0.2s;
+    }
+    #preview-wrapper.preview-constrained { padding: 16px; }
+    #preview-frame {
+      width: 100%;
+      height: 100%;
+      border: none;
+      background: var(--pg-preview-frame-bg);
+      transition: width 0.2s ease, background-color 0.2s;
+    }
+    .preview-constrained #preview-frame {
+      height: auto;
+      min-height: 100%;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <!-- Editor Panel -->
+    <div id="editor-panel">
+      <div class="toolbar">
+        <div class="toolbar-title"><span>Tailwind v4</span> Playground</div>
+        <button id="theme-toggle" title="Toggle dark mode">
+          <!-- icon injected by JS -->
+        </button>
+      </div>
+      <div class="tab-bar">
+        <button class="tab tab-active" id="tab-css">theme.css</button>
+        <button class="tab" id="tab-sandbox">sandbox.html</button>
+      </div>
+      <div class="editor-wrap">
+        <div id="editor-container"></div>
+        <div id="sandbox-editor-container" class="hidden"></div>
+      </div>
+    </div>
+
+    <!-- Resizer -->
+    <div id="resizer"></div>
+
+    <!-- Preview Panel -->
+    <div id="preview-panel">
+      <div class="preview-toolbar">
+        <label for="template-select">Template:</label>
+        <select id="template-select"></select>
+        <div class="vp-group">
+          <button class="vp-btn" data-viewport="375" title="Mobile">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="7" y="2" width="10" height="20" rx="2"/><line x1="12" y1="18" x2="12" y2="18.01"/></svg>
+          </button>
+          <button class="vp-btn" data-viewport="768" title="Tablet">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="12" y1="18" x2="12" y2="18.01"/></svg>
+          </button>
+          <button class="vp-btn" data-viewport="1024" title="Desktop">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+          </button>
+          <button class="vp-btn vp-active" data-viewport="full" title="Full Width">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 00-2 2v3m18 0V5a2 2 0 00-2-2h-3m0 18h3a2 2 0 002-2v-3M3 16v3a2 2 0 002 2h3"/></svg>
+          </button>
+        </div>
+      </div>
+      <div id="preview-wrapper">
+        <iframe id="preview-frame" sandbox="allow-scripts allow-same-origin"></iframe>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>
